@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import List
 
-from .catalog import CATALOG
+from .catalog import CATALOG, COUPONS
 from .relations import DANGER_KEYWORDS
 from .schema import DecomPath, DecompositionCard, Item
 
@@ -19,6 +19,46 @@ def _dangerous(item: Item) -> List[str]:
 
 def _cat_label(item: Item) -> str:
     return item.domain
+
+
+def item_profile(source: Item) -> dict:
+    """单品产品档案：卖点 / 原料 / 营养 / 价 / 券 / 套餐构成。
+
+    卖点、原料是目录里的「示例编辑内容」；价格、热量在 --live 时会被 MCP 回填成真实值。
+    用于前端「分解 / 详情」视图与 CLI 展示。
+    """
+    # 命中该单品的目标券 + 通用满减券
+    coupons = []
+    for cname, info in COUPONS.items():
+        if info.get("target") == source.name or info.get("kind") == "满减":
+            coupons.append({"name": cname, **info})
+
+    components = []
+    for n in source.constraints:
+        c = CATALOG.get(n)
+        if c:
+            components.append({
+                "name": n, "emoji": c.emoji, "domain": c.domain,
+                "price": c.price, "calories": c.calories,
+            })
+
+    return {
+        "name": source.name,
+        "emoji": source.emoji,
+        "domain": source.domain,
+        "type": source.type,
+        "description": source.description,
+        "tagline": source.tagline,
+        "ingredients": source.ingredients,
+        "price": source.price,
+        "calories": source.calories,
+        "attributes": source.attributes,
+        "side_effects": source.side_effects,
+        "signals": source.observable_signals,
+        "constraints": source.constraints,
+        "coupons": coupons,
+        "components": components,
+    }
 
 
 def decompose(source: Item, mode: str = "new") -> DecompositionCard:

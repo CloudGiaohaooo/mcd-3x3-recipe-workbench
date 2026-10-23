@@ -21,6 +21,9 @@ class Item:
     domain: str = ""  # 麦门版：主食/小食/饮品/甜品/券/套餐
     price: float = 0.0       # 示例单价（占位；接入麦当劳 MCP 后改真实价）
     calories: int = 0        # 示例热量（占位）
+    emoji: str = ""          # 前端图标
+    tagline: str = ""        # 一句话卖点（宣传语，示例编辑内容，非 MCP）
+    ingredients: List[str] = field(default_factory=list)  # 原料/配料（示例编辑内容，非 MCP）
 
 
 @dataclass
