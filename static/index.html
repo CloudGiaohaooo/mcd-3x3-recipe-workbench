@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>麦门 3×3 配方工作台</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo" src="sprites/big_mac.png" alt="麦门 3×3 配方工作台">
+      <div class="brand-text">
+        <h1>麦门 3×3 配方工作台</h1>
+        <p class="sub">把单品、优惠券、套餐放进九宫格 —— 合成最划算的一餐，或反向拆开看原料与卖点</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="liveBtn" class="pill" title="静态演示版：本地跑 web.py + MCD_MCP_TOKEN 可接真实数据">⚡ 关于实时数据</button>
+      <span id="srcNote" class="note">离线示例价</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- 左：物品库 -->
+    <aside class="palette">
+      <div class="panel-title">物品库 <span class="tiny">拖拽或点选放进格子</span></div>
+      <div id="paletteGroups"></div>
+    </aside>
+
+    <!-- 中：九宫格 -->
+    <section class="board">
+      <div class="mode-switch">
+        <button class="mode-btn active" data-mode="compose">🧩 合成套餐</button>
+        <button class="mode-btn" data-mode="decompose">🔍 分解 / 单品详情</button>
+      </div>
+
+      <div class="grid-wrap">
+        <div id="grid" class="grid"></div>
+      </div>
+
+      <div class="board-hint" id="boardHint">把单品拖进九宫格 —— 正中间那格是「主推」</div>
+
+      <div class="board-actions">
+        <button id="goBtn" class="btn primary">✨ 生成配方</button>
+        <button id="clearBtn" class="btn ghost">清空</button>
+      </div>
+    </section>
+
+    <!-- 右：结果 -->
+    <section class="result">
+      <div class="panel-title">结果 <span id="resultCount" class="tiny"></span></div>
+      <div id="resultBody" class="result-body">
+        <div class="empty">
+          <img class="empty-emoji" src="sprites/fries.png" alt="薯条">
+          <p>左边选好单品放进九宫格，<br>点「生成配方」看结果。</p>
+          <p class="empty-tip">点「分解 / 单品详情」后，直接点任意单品看它的原料、卖点与营养。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    麦当劳 1024 程序员创意开发大赛 · 静态演示版（配方由真实引擎预计算）· 价格/热量为离线示例占位，本地接入麦当劳 MCP 可换实时数据
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

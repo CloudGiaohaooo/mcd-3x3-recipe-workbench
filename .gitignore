@@ -10,6 +10,7 @@ venv/
 
 # 运行时生成的数据
 data/*.json
+static/data/
 
 # 系统
 .DS_Store
