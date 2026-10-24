@@ -50,8 +50,9 @@ body {
   width: 52px; height: 52px;
   background: var(--yellow);
   border-radius: 14px;
-  display: grid; place-items: center;
-  font-size: 30px;
+  padding: 6px;
+  object-fit: contain;
+  image-rendering: pixelated;
   box-shadow: inset 0 -3px 0 rgba(0,0,0,.12);
 }
 .brand-text h1 { font-size: 22px; letter-spacing: .5px; }
@@ -118,6 +119,8 @@ body {
 .chip:active { cursor: grabbing; }
 .chip.selected { border-color: var(--red); background: var(--red-soft); }
 .chip .em { font-size: 20px; width: 26px; text-align: center; }
+.em.sprite { image-rendering: pixelated; image-rendering: crisp-edges; display: inline-block; }
+.chip .em.sprite { width: 26px; height: 26px; }
 .chip .meta { flex: 1; min-width: 0; }
 .chip .nm { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .chip .pr { font-size: 11px; color: var(--muted); }
@@ -154,6 +157,7 @@ body {
 .cell.dragover { border-color: var(--red); background: var(--red-soft); transform: scale(1.04); }
 .cell.filled { border-style: solid; border-color: var(--border); background: #fff; box-shadow: var(--shadow); }
 .cell .em { font-size: 30px; line-height: 1; }
+.cell .em.sprite { width: 36px; height: 36px; }
 .cell .nm { font-size: 11px; font-weight: 700; max-width: 80px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cell .rm {
   position: absolute; top: 5px; right: 6px; width: 16px; height: 16px;
@@ -188,7 +192,7 @@ body {
 /* ---------- 结果 ---------- */
 .result-body { min-height: 200px; }
 .empty { text-align: center; color: var(--muted); padding: 50px 12px; }
-.empty-emoji { font-size: 46px; margin-bottom: 12px; }
+.empty-emoji { width: 72px; height: 72px; margin-bottom: 12px; image-rendering: pixelated; }
 .empty-tip { font-size: 12px; margin-top: 10px; opacity: .8; }
 
 /* 配方卡 */
@@ -222,6 +226,7 @@ body {
   display: inline-flex; align-items: center; gap: 5px;
   background: #F6F1E9; border-radius: 8px; padding: 4px 9px; font-size: 12.5px; font-weight: 700;
 }
+.elem .em.sprite { width: 18px; height: 18px; }
 .steps { list-style: none; counter-reset: s; }
 .steps li { counter-increment: s; position: relative; padding-left: 26px; margin-bottom: 5px; font-size: 13px; line-height: 1.45; }
 .steps li::before {
@@ -249,6 +254,7 @@ body {
 /* 分解 / 详情 */
 .profile-head { display: flex; align-items: center; gap: 13px; margin-bottom: 13px; }
 .profile-head .em { font-size: 40px; }
+.profile-head .em.sprite { width: 48px; height: 48px; }
 .profile-head h3 { font-size: 20px; font-weight: 900; }
 .profile-head .tagline { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
 .ing-row { display: flex; flex-wrap: wrap; gap: 6px; }

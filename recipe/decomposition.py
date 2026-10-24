@@ -38,12 +38,13 @@ def item_profile(source: Item) -> dict:
         c = CATALOG.get(n)
         if c:
             components.append({
-                "name": n, "emoji": c.emoji, "domain": c.domain,
+                "name": n, "id": c.id, "emoji": c.emoji, "domain": c.domain,
                 "price": c.price, "calories": c.calories,
             })
 
     return {
         "name": source.name,
+        "id": source.id,
         "emoji": source.emoji,
         "domain": source.domain,
         "type": source.type,

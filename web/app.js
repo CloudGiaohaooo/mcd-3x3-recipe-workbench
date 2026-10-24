@@ -31,6 +31,37 @@ const PRESETS = {
 
 function domColor(d) { return DOMAIN_COLOR[d] || "#8A8178"; }
 
+// 元素图标：优先用 Q 版像素图（web/sprites/<id>.png），加载失败回退 emoji
+function spriteURL(it) { return it && it.id ? "sprites/" + it.id + ".png" : null; }
+
+function emEl(it) {
+  const url = spriteURL(it);
+  if (!url) {
+    const s = document.createElement("span");
+    s.className = "em";
+    s.textContent = it.emoji || "🍴";
+    return s;
+  }
+  const img = document.createElement("img");
+  img.className = "em sprite";
+  img.src = url;
+  img.alt = it.name;
+  img.onerror = () => {
+    const s = document.createElement("span");
+    s.className = "em";
+    s.textContent = it.emoji || "🍴";
+    img.replaceWith(s);
+  };
+  return img;
+}
+
+function emHTML(it) {
+  const url = spriteURL(it);
+  const fallback = escapeHtml(it.emoji || "🍴");
+  if (!url) return `<span class="em">${fallback}</span>`;
+  return `<img class="em sprite" src="${url}" alt="${escapeHtml(it.name)}" onerror="this.outerHTML='<span class=\'em\'>${fallback}</span>'">`;
+}
+
 async function api(path, body) {
   const opt = body ? {
     method: "POST",
@@ -96,9 +127,7 @@ function chipEl(it) {
   c.draggable = true;
   c.dataset.name = it.name;
 
-  const em = document.createElement("span");
-  em.className = "em";
-  em.textContent = it.emoji || "🍴";
+  const em = emEl(it);
 
   const meta = document.createElement("div");
   meta.className = "meta";
@@ -179,9 +208,7 @@ function paintCell(cell, pos) {
   }
   const it = state.menu[name];
   cell.classList.add("filled");
-  const em = document.createElement("span");
-  em.className = "em";
-  em.textContent = it.emoji || "🍴";
+  const em = emEl(it);
   const nm = document.createElement("span");
   nm.className = "nm";
   nm.textContent = name;
@@ -315,7 +342,7 @@ function drawCard(idx) {
 
   const elements = (card.参与元素 || []).map((n) => {
     const it = state.menu[n];
-    return `<span class="elem">${it ? it.emoji : "🍴"} ${n}</span>`;
+    return `<span class="elem">${it ? emHTML(it) : "🍴"} ${n}</span>`;
   }).join("");
 
   const excluded = (card.剔除清单 || []);
@@ -360,7 +387,7 @@ function renderDecompose(data) {
   const ing = (p.ingredients || []).map((x) => `<span class="ing">${escapeHtml(x)}</span>`).join("") || "—";
   const coups = (p.coupons || []).map((c) => `<span class="mini-tag ok">${escapeHtml(c.name)}</span>`).join("") || "暂无可用券";
   const comps = (p.components || []).map((c) =>
-    `<span class="elem">${c.emoji || "🍴"} ${c.name} <span style="color:var(--muted)">¥${c.price}</span></span>`
+    `<span class="elem">${emHTML(c)} ${c.name} <span style="color:var(--muted)">¥${c.price}</span></span>`
   ).join("") || "";
 
   const compSec = p.components && p.components.length
@@ -378,7 +405,7 @@ function renderDecompose(data) {
 
   $("#resultBody").innerHTML = `
     <div class="profile-head">
-      <span class="em">${p.emoji || "🍴"}</span>
+      ${emHTML(p)}
       <div>
         <h3>${escapeHtml(p.name)}</h3>
         <div class="tagline">${escapeHtml(p.tagline || p.description || "")}</div>
@@ -401,7 +428,7 @@ function renderDecompose(data) {
 
 /* ---------- 工具 ---------- */
 function emptyHTML() {
-  return `<div class="empty"><div class="empty-emoji">🍟</div>
+  return `<div class="empty"><img class="empty-emoji" src="sprites/fries.png" alt="薯条">
     <p>左边选好单品放进九宫格，<br>点「生成配方」看结果。</p>
     <p class="empty-tip">点「分解 / 单品详情」后，直接点任意单品看它的原料、卖点与营养。</p></div>`;
 }

@@ -1,18 +1,23 @@
-# 麦门 3×3 配方工作台
-
-> 把麦当劳的**单品、优惠券、套餐**放进一个 3×3 九宫格，它会自动帮你：
-> - **正向合成**——几个单品怎么点最划算，出一张「套餐 + 价格 + 热量」配方卡；
-> - **反向分解**——一个套餐拆成单品，算「单点 vs 套餐」到底哪个省；
-> - **单品详情**——点任意单品，看它的原料 / 配料、一句话卖点与营养热量。
->
-> 有**网页版**（拖拽操作，见上图）和**命令行版**两套入口；价格、热量、套餐构成都能从**麦当劳官方 MCP** 实时拉取，不是写死的示例数字。
-
 <p align="center">
-  <img src="docs/demo.gif" alt="麦门 3×3 配方工作台 网页版演示：合成 → 主辅反转 → 分解看原料" width="720">
-  <br><sub>▲ 网页版演示：拖拽合成 → 换位置主辅反转 → 分解看原料 / 卖点 / 营养（静态图见 <code>docs/demo.png</code>）</sub>
+  <img src="web/sprites/big_mac.png" width="84" alt="麦门 3×3 配方工作台">
 </p>
 
-参加麦当劳 1024 程序员创意开发大赛（2026）的作品。
+<h1 align="center">麦门 3×3 配方工作台</h1>
+
+<p align="center">
+  把麦当劳的<b>单品、优惠券、套餐</b>放进一个 3×3 九宫格 ——<br>
+  正向<b>合成</b>最划算的一餐，或反向<b>拆开</b>看原料与卖点，价格 / 热量全部来自<b>麦当劳官方 MCP</b>。
+</p>
+
+<p align="center">
+  <a href="#star-一下"><img src="https://img.shields.io/badge/🍔%20麦当劳-1024%20程序员创意大赛-F5B301?style=for-the-badge&labelColor=DA291C"></a>
+  <a href="https://github.com/CloudGiaohaooo/mcd-3x3-recipe-workbench"><img src="https://img.shields.io/github/stars/CloudGiaohaooo/mcd-3x3-recipe-workbench?style=social" alt="GitHub stars"></a>
+</p>
+
+<p align="center">
+  <img src="docs/demo.gif" alt="麦门 3×3 配方工作台演示：合成 → 主辅反转 → 分解看原料 → 下午茶" width="760">
+  <br><sub>▲ 网页版演示：拖拽合成 → 换位置主辅反转 → 分解看原料 / 卖点 / 营养 → 下午茶</sub>
+</p>
 
 ---
 
@@ -20,6 +25,7 @@
 
 - [这是什么](#这是什么)
 - [它能干什么](#它能干什么)
+- [元素图鉴（Q 版像素图）](#元素图鉴q-版像素图)
 - [网页版前端系统](#网页版前端系统)
 - [30 秒跑起来](#30-秒跑起来)
 - [怎么用](#怎么用)
@@ -30,14 +36,20 @@
 - [目录结构](#目录结构)
 - [常见问题](#常见问题)
 - [比赛交付文件](#比赛交付文件)
+- [Star 一下](#star-一下)
 
 ---
 
 ## 这是什么
 
-它是一套工具（网页版 + 命令行版）：你给它一组麦当劳的单品（比如「巨无霸 + 薯条 + 可乐」），它通过一套「需求发现 → 关系图 → 候选生成 → 检查器 → 回退 → 排序」的流水线，生成一张**最优配方卡**，告诉你这几样东西怎么点最划算、多少热量、值不值得点套餐。
+一套工具（**网页版 + 命令行版**）：你给它一组麦当劳的单品（比如「巨无霸 + 薯条 + 可乐」），它通过「需求发现 → 关系图 → 候选生成 → 检查器 → 回退 → 排序」的流水线，生成一张**最优配方卡**，告诉你这几样怎么点最划算、多少热量、值不值得点套餐。
 
-核心是**换域不改算法**：这套引擎原来是一个「3×3 灵感合成台」（把家里的杂物摆进格子、生成今晚能做的小事），现在只把「数据层」换成了麦当劳（单品/券/套餐 + 真实价格），核心算法一行没动。
+核心是**换域不改算法**：这套引擎原本是一个「3×3 灵感合成台」（把家里的杂物摆进格子、生成今晚能做的小事），现在只把「数据层」换成麦当劳（单品 / 券 / 套餐 + 真实价格），核心算法一行没动。
+
+<p align="center">
+  <img src="docs/demo.png" width="760" alt="正向合成：巨无霸 + 薯条 + 可乐 → 巨无霸套餐">
+  <br><sub>▲ 正向合成：巨无霸 + 薯条 + 可乐 → 命中巨无霸套餐</sub>
+</p>
 
 ---
 
@@ -70,6 +82,11 @@
 价差结论：单买总价 ¥54.5 vs 套餐价 ¥54.5 → 价格持平
 ```
 
+<p align="center">
+  <img src="docs/demo_decompose.png" width="760" alt="反向分解：巨无霸 → 原料 / 卖点 / 营养 / 可用券">
+  <br><sub>▲ 反向分解：点开任意单品看原料 / 卖点 / 营养 / 可用优惠券</sub>
+</p>
+
 ### 3. 位置敏感：同一组东西，换位置配方就变
 
 九宫格**正中间那格 = 主推**。同样是「巨无霸、薯条、可乐」：
@@ -79,15 +96,39 @@
 
 位置一变，主辅反转，配方措辞就跟着变。这就是「3×3」的意义：位置本身就是一种输入。
 
+<p align="center">
+  <img src="docs/demo_position.png" width="760" alt="位置敏感：可乐放中间当主角">
+  <br><sub>▲ 位置敏感：把可乐放到正中间，配方从「巨无霸当主菜」变成「可乐当主角」</sub>
+</p>
+
 ### 4. 单品详情：原料 / 卖点 / 营养
 
-不只是「怎么点」，还告诉你「这是什么」。网页版（或 CLI 分解台）点开任意单品，能看到它的：
+不只是「怎么点」，还告诉你「这是什么」。点开任意单品，能看到它的：
 
 > 巨无霸 🍔「双层牛肉，一口满足」—— 原料：双层牛肉饼、芝士、生菜、酸黄瓜、洋葱、特调酱、芝麻面包；530 kcal；可用「满 30 减 5 券」。
 
-- **一句话卖点**（宣传语）与**原料 / 配料**：目录里的示例编辑内容，随仓库可复现；
+- **一句话卖点**与**原料 / 配料**：目录里的示例编辑内容，随仓库可复现；
 - **营养热量**：接 MCP 后是麦当劳营养表的真实值；
 - **可用优惠券**：命中该单品的单品券 + 通用满减券。
+
+---
+
+## 元素图鉴（Q 版像素图）
+
+19 个单品 / 券 / 套餐都配了手绘的 **Q 版 2D 像素图标**（16×16 点阵放大，纯 Python 标准库生成，`tools/gen_sprites.py` 可复现）：
+
+<p align="center">
+  <img src="docs/sprites.png" width="620" alt="全部元素的 Q 版像素图标">
+</p>
+
+| 主食 | 小食 | 饮品 | 甜品 | 优惠券 | 套餐 |
+| --- | --- | --- | --- | --- | --- |
+| <img src="web/sprites/big_mac.png" width="32"> 巨无霸 | <img src="web/sprites/fries.png" width="32"> 薯条 | <img src="web/sprites/cola.png" width="32"> 可乐 | <img src="web/sprites/mcflurry.png" width="32"> 麦旋风 | <img src="web/sprites/coupon_30_5.png" width="32"> 满30减5券 | <img src="web/sprites/bigmac_meal.png" width="32"> 巨无霸套餐 |
+| <img src="web/sprites/spicy_burger.png" width="32"> 麦辣鸡腿堡 | <img src="web/sprites/nuggets.png" width="32"> 麦乐鸡 | <img src="web/sprites/cola_zero.png" width="32"> 零度可乐 | <img src="web/sprites/apple_pie.png" width="32"> 苹果派 | <img src="web/sprites/coupon_spicy_half.png" width="32"> 半价券 | <img src="web/sprites/spicy_meal.png" width="32"> 麦辣套餐 |
+| <img src="web/sprites/grilled_burger.png" width="32"> 板烧鸡腿堡 | <img src="web/sprites/corn.png" width="32"> 玉米杯 | <img src="web/sprites/sprite.png" width="32"> 雪碧 | <img src="web/sprites/cone.png" width="32"> 甜筒 | <img src="web/sprites/coupon_fries_free.png" width="32"> 薯条免费券 | — |
+| <img src="web/sprites/fish_burger.png" width="32"> 麦香鱼 | <img src="web/sprites/wings.png" width="32"> 麦辣鸡翅 | — | — | — | — |
+
+> 像素图可随时改：改 `tools/gen_sprites.py` 里的点阵，跑 `python tools/gen_sprites.py` 重新生成即可。
 
 ---
 
@@ -130,7 +171,7 @@ python run.py --demo
 
 你会看到 5 个内置场景，每个场景出一张配方卡。这就是全部核心功能。
 
-> 想用**真实价格/热量**？看下一节 [真实数据（麦当劳 MCP）](#真实数据麦当劳-mcp)。
+> 想用**真实价格 / 热量**？看下一节 [真实数据（麦当劳 MCP）](#真实数据麦当劳-mcp)。
 
 ---
 
@@ -144,7 +185,7 @@ python run.py
 
 回车后：
 
-1. 先列出所有可用单品/券/套餐（19 个）；
+1. 先列出所有可用单品 / 券 / 套餐（19 个）；
 2. 列 5 个内置场景，选一个（回车默认第一个）；
 3. 出一张配方卡；
 4. 然后可以输入：
@@ -154,7 +195,7 @@ python run.py
    - `再生成一批` —— 重新生成
    - `退出` —— 结束
 
-### 方式 B：命令指定（适合演示/写进脚本）
+### 方式 B：命令指定（适合演示 / 写进脚本）
 
 ```bash
 python run.py --scenario 巨无霸薯条可乐     # 跑指定场景
@@ -173,7 +214,7 @@ python run.py --my-recipes                  # 打印收藏的「我的配方」
 | 位置 | 含义 |
 | --- | --- |
 | 正中间 `2,2` | **主推**（谁放中间谁当主角） |
-| 相邻（上下左右） | **搭配**（主菜的配菜/饮品等） |
+| 相邻（上下左右） | **搭配**（主菜的配菜 / 饮品等） |
 | 对角 / 边角 | **点缀 / 约束**（次要位置） |
 
 其余格子的角色由单品类别决定：主食 = 主菜、小食 = 配菜、饮品 = 饮品、甜品 = 甜品、券 = 优惠。
@@ -209,21 +250,21 @@ python run.py --my-recipes                  # 打印收藏的「我的配方」
 | 一句发现 | 一句话概括（≤30 字），主推不同措辞就不同 |
 | 这是什么 | 具体是什么组合、多少钱、有没有省钱 |
 | 替代了什么 | 它替代了「单点计价」这个更笨的做法 |
-| 参与元素 | 这次用到了哪几个单品/券 |
+| 参与元素 | 这次用到了哪几个单品 / 券 |
 | 剔除清单 | 没用到的东西，以及为什么不用的理由 |
 | 说明书 | 一步步怎么做 |
 | 最小验证 | 怎么验证这个配方值不值 |
 | 失败点 | 这个配方的坑（比如套餐不能换小食） |
 | 位置依据 | 每个格子起的角色作用 |
-| 分数 | 6 项打分（需求/惊喜/替代/可做/说明书/位置）加总 |
+| 分数 | 6 项打分（需求 / 惊喜 / 替代 / 可做 / 说明书 / 位置）加总 |
 
-> 上面的 ¥43.0 / 968 kcal 是**离线占位示例值**（README 顶部说清楚了）。接上麦当劳 MCP 后，这里会变成真实价（如巨无霸套餐 ¥54.5）。
+> 上面的 ¥43.0 / 968 kcal 是**离线占位示例值**。接上麦当劳 MCP 后，这里会变成真实价（如巨无霸套餐 ¥54.5）。
 
 ---
 
 ## 真实数据（麦当劳 MCP）
 
-「MCP」是麦当劳开放的一套官方数据接口（菜单、价格、优惠券、营养等）。接上它，配方卡里的价格/热量/套餐构成就是**真实门店数据**。
+「MCP」是麦当劳开放的一套官方数据接口（菜单、价格、优惠券、营养等）。接上它，配方卡里的价格 / 热量 / 套餐构成就是**真实门店数据**。
 
 ```bash
 # 1. 设置 Token（只放环境变量，绝不写进代码）
@@ -238,7 +279,7 @@ export MCD_MCP_TOKEN=你的Token
 python run.py --live --demo
 python run.py --live --scenario 巨无霸薯条可乐
 python run.py --live --decompose 麦辣鸡腿堡套餐
-python run.py --live --city 上海市 --keyword 外滩   # 换城市/门店
+python run.py --live --city 上海市 --keyword 外滩   # 换城市 / 门店
 ```
 
 跑 `--live` 时会先打印一行「麦当劳 MCP 实时数据已接入 · 某某门店」，列出它拉到的真实菜单数、热量数、套餐构成、真实计价验证、门店可用券。
@@ -258,12 +299,12 @@ python run.py --live --city 上海市 --keyword 外滩   # 换城市/门店
 | `python run.py --demo` | 非交互跑全部 5 个示例（离线占位价） |
 | `python run.py` | 交互式：选场景、换卡、标记反馈 |
 | `python run.py --scenario 名字` | 跑指定场景 |
-| `python run.py --decompose 名字` | 反向拆解一个单品/套餐 |
+| `python run.py --decompose 名字` | 反向拆解一个单品 / 套餐 |
 | `python run.py --closure 名字` | 分解 → 再合成闭环 |
 | `python run.py --ablation shuffled` | 打乱位置看配方是否变化（验证位置敏感） |
 | `python run.py --my-recipes` | 打印收藏的「我的配方」 |
 | `python run.py --live --demo` | 接麦当劳 MCP 跑真实数据（需 Token） |
-| `python run.py --verbose` | 打印完整流水线（需求/关系/位置/回退日志） |
+| `python run.py --verbose` | 打印完整流水线（需求 / 关系 / 位置 / 回退日志） |
 
 内置场景：`巨无霸薯条可乐`、`可乐薯条巨无霸·主辅反转`、`满30减5券巨无霸可乐`、`薯条免费券薯条可乐`、`麦旋风可乐苹果派`。
 
@@ -276,10 +317,11 @@ mcd-recipe-workbench/
 ├── run.py                      # 命令行入口
 ├── web.py                      # 网页前端服务（纯标准库，http://127.0.0.1:8765）
 ├── web/                        # 前端页面（index.html + style.css + app.js，拖拽九宫格）
-├── config.yaml                 # 配置（生成器/流水线参数/MCP 地址）
+│   └── sprites/                # Q 版像素图标（19 张 + 总览图，tools/gen_sprites.py 生成）
+├── config.yaml                 # 配置（生成器 / 流水线参数 / MCP 地址）
 ├── recipe/                     # 引擎
-│   ├── schema.py               # 数据模型（Item/Slot/配方卡…）
-│   ├── catalog.py              # 目录：19 个单品/券/套餐 + 券规则
+│   ├── schema.py               # 数据模型（Item / Slot / 配方卡…）
+│   ├── catalog.py              # 目录：19 个单品 / 券 / 套餐 + 券规则
 │   ├── templates.py            # 合成引擎：单品类别 × 格子角色 → 候选
 │   ├── needs.py                # 需求发现
 │   ├── relations.py            # 关系图
@@ -288,14 +330,15 @@ mcd-recipe-workbench/
 │   ├── position.py             # 位置语义（中心=主推…）
 │   ├── pipeline.py             # 流水线编排（生成→检查→回退→排序）
 │   ├── generator.py            # 生成器接口（规则版 / DeepSeek 可插拔）
-│   ├── feedback.py             # 反馈回流（正/负样本库）
+│   ├── feedback.py             # 反馈回流（正 / 负样本库）
 │   ├── negative_samples.py     # 负样本库
 │   ├── decomposition.py        # 反向分解
 │   ├── closure.py              # 分解→再合成闭环
 │   ├── mcp_client.py           # 麦当劳 MCP 客户端（纯标准库）
 │   └── live.py                 # 实时数据层（门店→菜单→营养→券→计价）
-├── data/                       # 运行时生成的反馈/样本（不提交）
-├── docs/                       # 演示图（demo.gif 动画 + demo.png 静态图）
+├── data/                       # 运行时生成的反馈 / 样本（不提交）
+├── docs/                       # 演示图（demo.gif / 各功能截图 / 元素图鉴）
+├── tools/                      # 生成脚本（gen_sprites.py 像素图 / gen_docs.py 演示图）
 ├── MCP_INTEGRATION.md          # MCP 接入说明
 ├── mcp-config.example.json     # 脱敏配置示例
 └── CONTEST_DECLARATION.md      # 参赛声明
@@ -315,7 +358,7 @@ A：说明你没设环境变量。设好 Token 再跑，或者不设 Token 用�
 A：这是真实结果，不是 bug。麦当劳不是所有套餐都比单点便宜——麦辣鸡腿堡套餐确实省 ¥2.5，巨无霸套餐价格等于单点。项目**不编造优惠**。
 
 **Q：需要装什么依赖吗？**
-A：不用。核心引擎和 MCP 客户端都用 Python 标准库，零第三方依赖。可选：把生成器换成 DeepSeek 时才需要设 `DEEPSEEK_API_KEY`。
+A：不用。核心引擎和 MCP 客户端都用 Python 标准库，零第三方依赖。可选：把生成器换成 DeepSeek 时才需要设 `DEEPSEEK_API_KEY`；重新生成演示图 / 像素图时才需要本机 Pillow + Chrome（运行时不需要）。
 
 ---
 
@@ -325,4 +368,14 @@ A：不用。核心引擎和 MCP 客户端都用 Python 标准库，零第三方
 - `CONTEST_DECLARATION.md` —— 参赛声明（官方原文）
 - `MCP_INTEGRATION.md` —— MCP 接入说明
 - `mcp-config.example.json` —— 脱敏配置示例（仅环境变量占位符）
-- `recipe/`、`run.py`、`web.py`、`web/`、`config.yaml` —— 源码
+- `recipe/`、`run.py`、`web.py`、`web/`、`config.yaml`、`tools/`、`docs/` —— 源码与素材
+
+---
+
+## Star 一下
+
+如果你觉得「麦门 3×3 配方工作台」有点意思，欢迎点右上角 **⭐ Star** 支持一下——这是麦当劳 1024 大赛的参赛作品，你的一个 Star 就是最好的投票 🙏
+
+<p align="center">
+  <a href="https://github.com/CloudGiaohaooo/mcd-3x3-recipe-workbench"><img src="https://img.shields.io/github/stars/CloudGiaohaooo/mcd-3x3-recipe-workbench?style=social" alt="GitHub stars"></a>
+</p>
