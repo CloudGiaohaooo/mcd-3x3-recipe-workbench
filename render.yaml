@@ -1,0 +1,13 @@
+# Render Blueprint：在 render.com 上一键部署（免费实例）
+# 部署按钮： https://render.com/deploy?repo=https://github.com/CloudGiaohaooo/mcd-3x3-recipe-workbench
+services:
+  - type: web
+    name: mcd-3x3-recipe-workbench
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: PYTHONUNBUFFERED
+        value: "1"

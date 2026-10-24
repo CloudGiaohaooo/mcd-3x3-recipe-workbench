@@ -260,8 +260,8 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     _setup_encoding()
     ap = argparse.ArgumentParser(description="麦门 3×3 配方工作台 Web 服务")
-    ap.add_argument("--port", type=int, default=8765)
-    ap.add_argument("--host", default="127.0.0.1")
+    ap.add_argument("--port", type=int, default=int(os.environ.get("PORT", "8765")))
+    ap.add_argument("--host", default=os.environ.get("HOST", "127.0.0.1"))
     args = ap.parse_args()
 
     srv = ThreadingHTTPServer((args.host, args.port), Handler)

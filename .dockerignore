@@ -1,0 +1,9 @@
+.git
+.gitignore
+docs
+tools
+*.md
+mcp-config.example.json
+config.yaml
+__pycache__
+*.pyc
