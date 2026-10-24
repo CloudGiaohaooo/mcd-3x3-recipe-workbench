@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="https://cloudgiaohaooo.github.io/mcd-3x3-recipe-workbench/"><img src="https://img.shields.io/badge/🚀%20在线体验-立即打开%20Demo-3CB371?style=for-the-badge" alt="在线体验"></a>
   <a href="#star-一下"><img src="https://img.shields.io/badge/🍔%20麦当劳-1024%20程序员创意大赛-F5B301?style=for-the-badge&labelColor=DA291C"></a>
   <a href="https://github.com/CloudGiaohaooo/mcd-3x3-recipe-workbench"><img src="https://img.shields.io/github/stars/CloudGiaohaooo/mcd-3x3-recipe-workbench?style=social" alt="GitHub stars"></a>
 </p>
