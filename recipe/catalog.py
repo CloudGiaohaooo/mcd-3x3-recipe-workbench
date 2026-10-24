@@ -181,7 +181,7 @@ CATALOG: dict = {
         constraints=["巨无霸", "薯条", "可乐"],
         side_effects=["份量固定，单品不可随换"],
         observable_signals=["一套能吃饱"],
-        domain="套餐", price=43.0, calories=968,
+        domain="套餐", price=40.0, calories=968,  # 套餐价=单点 ¥43.0 省 ¥3.0（占位示例，接 MCP 后改真实价）
         emoji="🍔", tagline="一套吃饱",
         ingredients=["巨无霸", "中薯条", "中可乐"],
     ),
@@ -191,7 +191,7 @@ CATALOG: dict = {
         constraints=["麦辣鸡腿堡", "薯条", "可乐"],
         side_effects=["份量固定"],
         observable_signals=["一套能吃饱"],
-        domain="套餐", price=37.5, calories=928,
+        domain="套餐", price=34.5, calories=928,  # 套餐价=单点 ¥37.5 省 ¥3.0（占位示例）
         emoji="🍗", tagline="辣味一套",
         ingredients=["麦辣鸡腿堡", "中薯条", "中可乐"],
     ),
