@@ -66,6 +66,7 @@ class RuleBasedGenerator(RecipeGenerator):
                 "失败点": s["失败点"],
                 "位置依据": basis,
                 "可行性": s["可行性"],
+                "save": s.get("save", 0.0),
             }
             candidates.append(Candidate(
                 candidate_id=f"c{i}",
@@ -172,17 +173,21 @@ class DeepSeekGenerator(RecipeGenerator):
             raise RuntimeError("未安装 openai，请 `pip install openai` 后再用 DeepSeek 生成器。") from e
 
         system_prompt = (
-            "你是「今晚的我」。从手头物品里找出真实的小麻烦，生成一件今晚就能做的小事。"
+            "你是麦当劳点餐助手。从顾客放进九宫格的单品/优惠券里，"
+            "合成最划算的一餐或一个点单方案（套餐/两件套/下午茶/券后最优）。"
             "只输出一个 JSON 对象，格式："
-            "{\"candidates\":[{\"what\":\"做什么\",\"elements\":[\"物品名\"],"
-            "\"replaces\":\"替代了什么\",\"excluded\":[{\"item\":\"未用物品\","
+            "{\"candidates\":[{\"what\":\"这是什么组合\",\"elements\":[\"单品名\"],"
+            "\"replaces\":\"替代了什么（如 逐件单点/原价买）\",\"excluded\":[{\"item\":\"未用单品\","
             "\"reason\":\"无关|硬解释|缺可观测信号|危险|缺条件\"}],"
-            "\"一句发现\":\"不超过30字\",\"说明书\":[\"步骤\"],"
+            "\"一句发现\":\"不超过30字\",\"说明书\":[\"点单步骤\"],"
             "\"最小验证\":\"\",\"失败点\":[\"\"],\"位置依据\":\"\"}]}。"
-            "一次给 8–10 个候选；elements 至少 2 个；不要输出思维链。"
+            "一次给 8–10 个候选；elements 至少 2 个；优先给出「券后更省」「套餐比单点划算」的方案；"
+            "价格按输入里的价格字段计算，不要虚构折扣；不要输出思维链。"
         )
         user_input = json.dumps({
-            "items": {k: {"attributes": v.attributes, "type": v.type} for k, v in items.items()},
+            "items": {k: {"attributes": v.attributes, "domain": v.domain,
+                          "price": v.price, "calories": v.calories, "type": v.type}
+                      for k, v in items.items()},
             "positions": [{"position": s.position, "item_id": s.item_id} for s in slots],
             "needs": [{"description": n.description} for n in needs],
             "relations": [{"items": r.items, "relation": r.relation} for r in relations],

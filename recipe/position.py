@@ -9,7 +9,7 @@ predict() 读 item.attributes，按「物品能力 × 格子角色」给角色�
 - shuffled    打乱：按 seed 置换 items→positions，角色跟着新坐标重算
 - roles_only  只给格子角色，不给能力描述
 
-角色集合：main / auxiliary / trigger / record / spread / witness / constraint。
+角色集合（3×3 格子几何只会出现这 3 种）：main（中心）/ auxiliary（上下左右相邻）/ spread（对角边角）。
 """
 from __future__ import annotations
 
@@ -19,16 +19,12 @@ from typing import Dict, List
 from .schema import Item, Slot
 
 CENTER = (2, 2)
-ROLES = ["main", "auxiliary", "trigger", "record", "spread", "witness", "constraint"]
+ROLES = ["main", "auxiliary", "spread"]
 
 ROLE_MEANING = {
-    "main": "主菜/核心单品",
-    "auxiliary": "搭配/辅助",
-    "trigger": "触发",
-    "record": "记录",
-    "spread": "传播",
-    "witness": "见证",
-    "constraint": "约束/场景",
+    "main": "主推/主菜",
+    "auxiliary": "搭配",
+    "spread": "边角点缀",
 }
 
 # 单品能力 → 角色语义（读 item.attributes 后给出，用于「能力 × 角色」先验）
@@ -65,7 +61,7 @@ def _parse(pos: str):
 
 
 def _geometry_role(pos: str) -> tuple:
-    """按格子几何位置给角色先验（中心/相邻/对角/边角）。"""
+    """按格子几何位置给角色先验（中心=主推 / 上下左右相邻=搭配 / 对角边角=点缀）。"""
     r, c = _parse(pos)
     if (r, c) == CENTER:
         return "main", 0.9
@@ -75,7 +71,7 @@ def _geometry_role(pos: str) -> tuple:
         return "auxiliary", 0.8
     if cheb == 1:
         return "spread", 0.7
-    return "constraint", 0.6
+    return "spread", 0.5
 
 
 def _capability_role(item: Item) -> str:

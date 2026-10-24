@@ -1,8 +1,9 @@
 """排序打分（六项，各自不超过规范权重上限，总分 ≤ 100）。
 
-需求真实度 25 + 惊喜/跨类 25 + 替代感 20 + 今晚可做 15 + 说明书完整 10 + 位置依据 5。
+需求真实度 25 + 惊喜/跨类 25 + 划算（替代感）20 + 今晚可做 15 + 说明书完整 10 + 位置依据 5。
 位置依据按「主材料是否命中格子里的主物角色」给 5 或 0：位置因此进入排序，
 但不越界加成一个第七项。
+「划算」读卡片里的 save（券后省 / 套餐价差），省得越多替代感越强——这是「最划算的一餐」的核心。
 """
 from __future__ import annotations
 
@@ -11,7 +12,8 @@ from typing import Dict, List, Tuple
 from .schema import Candidate, Item, Need, ScoreDetail
 from .position import PositionContext
 
-STRONG_PAIN = {"会烂", "易埋包里", "易缠"}
+# 强痛点属性：跟「白花钱/浪费」直接相关（券过期、券用不上），比「怕热量」更紧迫
+STRONG_PAIN = {"满减", "单品券"}
 
 
 def score(candidate: Candidate, items: Dict[str, Item], needs: List[Need],
@@ -36,9 +38,16 @@ def score(candidate: Candidate, items: Dict[str, Item], needs: List[Need],
     else:
         d.surprise = 15 + (2 if len(roles) >= 3 else 0)
 
-    # 替代感 20
-    if candidate.replaces:
-        d.replacement = 20 if len(candidate.replaces) >= 4 else 16
+    # 划算/替代感 20：省得越多越划算；没省钱但有替代做法给基础分
+    save = float(card.get("save") or 0)
+    if save >= 10:
+        d.replacement = 20
+    elif save >= 5:
+        d.replacement = 18
+    elif save > 0:
+        d.replacement = 16
+    elif candidate.replaces:
+        d.replacement = 14
 
     # 今晚可做 15
     d.doable_tonight = 15 if card.get("可行性", "feasible") == "feasible" else 10

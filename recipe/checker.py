@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Tuple
 
+from .catalog import COUPONS
 from .negative_samples import NEGATIVE_PATTERNS
 from .schema import Candidate, CheckResult, Item, Need, Relation, RuleDetail
 
@@ -39,17 +40,17 @@ def check(candidate: Candidate, items: Dict[str, Item], relations: List[Relation
     details: List[RuleDetail] = []
     all_names = list(items.keys())
 
-    # 1. 是一件事吗
+    # 1. 是一个能点单的组合吗
     neg = [p for p in NEGATIVE_PATTERNS if p in candidate.what]
     if neg:
-        details.append(RuleDetail(1, "fail", "这是活动/仪式/象征，不是一件事",
+        details.append(RuleDetail(1, "fail", "这是在硬贴标签/仪式，不是一个点单方案",
                                   f"文案命中负样本特征：{neg}"))
     elif not candidate.replaces:
-        details.append(RuleDetail(1, "fail", "说不清替代什么",
-                                  "没有替代物，像在描述一个动作而不是一件事"))
+        details.append(RuleDetail(1, "fail", "说不清替代了什么",
+                                  "没有替代做法（单点/原价），像在描述一个动作而不是组合"))
     else:
-        details.append(RuleDetail(1, "pass", "一句话说清做什么、给谁、替代什么",
-                                  f"做什么：{candidate.what}；替代：{candidate.replaces}"))
+        details.append(RuleDetail(1, "pass", "一句话说清这是什么组合、替代了什么",
+                                  f"组合：{candidate.what}；替代：{candidate.replaces}"))
 
     # 2. 至少 2 个元素吗
     if len(candidate.elements) >= 2:
@@ -80,26 +81,34 @@ def check(candidate: Candidate, items: Dict[str, Item], relations: List[Relation
         details.append(RuleDetail(3, "fail", "有元素是硬解释/贴标签",
                                   f"这些元素没有属性支持：{bad_elem}"))
 
-    # 4. 有替代感吗
+    # 4. 有替代感吗（替代了更贵/更麻烦的默认点法）
     if candidate.replaces and len(candidate.replaces) >= 2:
-        details.append(RuleDetail(4, "pass", "替代了某个常用东西或做法",
+        details.append(RuleDetail(4, "pass", "替代了更贵/更麻烦的默认做法",
                                   f"替代：{candidate.replaces}"))
     else:
-        details.append(RuleDetail(4, "fail", "替代物不明确",
-                                  "说不清没有它时人现在怎么做"))
+        details.append(RuleDetail(4, "fail", "替代做法不明确",
+                                  "说不清不这么点的话人会怎么买"))
 
-    # 5. 今晚能做吗
-    constraints = []
+    # 5. 券/套餐条件满足吗（满减凑够门槛、单品券目标在组合里）
+    cond_ok, cond_msg = True, []
     for name in candidate.elements:
-        it = items.get(name)
-        if it:
-            constraints += it.constraints
-    need_wait = any(kw in ("".join(constraints)) for kw in ["采购", "定制", "等一周", "专业工具"])
-    if not need_wait:
-        details.append(RuleDetail(5, "pass", "不需买大件、不需等一周",
-                                  "无采购/定制/等待/专业工具约束"))
+        info = COUPONS.get(name)
+        if not info:
+            continue
+        if info["kind"] == "满减":
+            total = round(sum(items[n].price for n in candidate.elements if n != name), 1)
+            if total < info["threshold"]:
+                cond_ok = False
+                cond_msg.append(f"{name} 需凑满 ¥{info['threshold']}，当前 ¥{total}")
+        else:  # 单品半价 / 单品免费
+            if info["target"] not in candidate.elements:
+                cond_ok = False
+                cond_msg.append(f"{name} 只适用于 {info['target']}，但组合里没有")
+    if cond_ok:
+        details.append(RuleDetail(5, "pass", "券/套餐条件满足",
+                                  "满减凑够门槛、单品券目标单品在组合里"))
     else:
-        details.append(RuleDetail(5, "fail", "卡在条件", "需要采购、定制或等待"))
+        details.append(RuleDetail(5, "fail", "条件不满足", "；".join(cond_msg)))
 
     # 6. 剔除清单完整吗
     excluded_names = [e.item for e in candidate.excluded]
@@ -145,9 +154,11 @@ def _suggest(candidate: Candidate, failed: List[int], details: List[RuleDetail])
     if not failed:
         return ""
     if 1 in failed:
-        return "减到核心两三个元素，说清『做什么、给谁、替代什么』，别做成活动或仪式。"
+        return "说清『这是什么组合、替代了什么（单点/原价）』，别做成活动或象征。"
     if 4 in failed:
-        return f"写清替代物：没有它时人现在怎么做（比如替代翻包乱摸）。"
+        return "写清替代做法：不这么点的话人会怎么买（比如逐件单点/原价买）。"
+    if 5 in failed:
+        return "换一组能凑够券门槛的组合，或把券对应的目标单品加进来。"
     if 6 in failed:
         return "把未参与元素逐个写进剔除清单，理由只能是无关/硬解释/危险/缺条件。"
     if 3 in failed:
@@ -155,5 +166,5 @@ def _suggest(candidate: Candidate, failed: List[int], details: List[RuleDetail])
     if 2 in failed:
         return "至少保留 2 个参与元素。"
     if 8 in failed:
-        return "换一个不同类别的元素，或让元素有不同分工。"
+        return "换一个不同类别的元素，凑成跨类搭配（主食+小食+饮品等）。"
     return "对照不通过项，按规则卡调整后重生成。"

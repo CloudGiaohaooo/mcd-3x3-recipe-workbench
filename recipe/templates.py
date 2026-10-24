@@ -98,7 +98,7 @@ def _finding(main: str, dm: str, combo: float, save: float, kind: str) -> str:
 
 
 def _mk(tid, main, need_signal, what, finding, replaces, elements, eroles,
-        manual, mv, failures, feasibility="feasible"):
+        manual, mv, failures, feasibility="feasible", save=0.0):
     return {
         "template_id": tid,
         "main": main,
@@ -112,6 +112,7 @@ def _mk(tid, main, need_signal, what, finding, replaces, elements, eroles,
         "最小验证": mv,
         "失败点": failures,
         "可行性": feasibility,
+        "save": save,  # 比「替代做法」省多少钱（券后省/套餐价差），供打分用
     }
 
 
@@ -186,7 +187,7 @@ def build_food(main, aux, items):
             elements=names,
             eroles=[_erole(n, items, role="主推") if n == main else _erole(n, items)
                     for n in names],
-            manual=manual, mv=mv, failures=failures,
+            manual=manual, mv=mv, failures=failures, save=save,
         )
 
     # 三件套：主食 + 小食 + 饮品
@@ -261,6 +262,7 @@ def build_coupon(main, aux, items):
                             f"用{main}减 ¥{off}", f"实付约 ¥{pay}"],
                     mv="看券后价是否比不用券低",
                     failures=["没凑满门槛用不了", "券与其它券不能叠加"],
+                    save=off,
                 ))
     else:  # 单品半价 / 单品免费
         target = info["target"]
@@ -278,6 +280,7 @@ def build_coupon(main, aux, items):
                 manual=[f"选 {t}", f"用 {main}", f"实付约 ¥{pay}"],
                 mv="看券后价是否为最低",
                 failures=["券限单品，别的用不了"],
+                save=off,
             ))
     return specs
 

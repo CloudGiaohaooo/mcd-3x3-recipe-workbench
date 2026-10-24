@@ -78,9 +78,9 @@ def generate_recipes(items: Dict[str, Item], slots: List[Slot], generator: Recip
                        "这组东西暂时没找到值得做的小事，建议换一组或减元素。",
                        "no_need", {})
 
-    # 阶段 1：关系图
+    # 阶段 1：关系图（至少有一对可搭配关系即可；两个单品也能合成，如 饮品+甜品=下午茶）
     relations = build_relations(items)
-    if len(relations) < 2 or hard_explanation_count(relations) > 1:
+    if not relations or hard_explanation_count(relations) > 1:
         return _result([], None, needs, relations, None, retry_log,
                        "这组物品之间关系不足，建议换一组或减元素。",
                        "insufficient_relations", {})
