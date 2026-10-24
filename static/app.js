@@ -29,6 +29,7 @@ const PRESETS = {
   "可乐主推反转": [["可乐", "2,2"], ["薯条", "2,1"], ["巨无霸", "3,2"]],
   "麦旋风下午茶": [["麦旋风", "2,2"], ["可乐", "2,1"], ["苹果派", "3,2"]],
   "满减凑单": [["满30减5券", "2,2"], ["巨无霸", "2,1"], ["可乐", "3,2"]],
+  "五件套合体": [["巨无霸", "2,2"], ["薯条", "2,1"], ["可乐", "3,2"], ["麦乐鸡", "1,2"], ["雪碧", "2,3"]],
 };
 
 function domColor(d) { return DOMAIN_COLOR[d] || "#8A8178"; }
@@ -266,13 +267,7 @@ function paintCell(cell, pos) {
 
 /* ---------- 交互 ---------- */
 function place(name, pos) {
-  const alreadyPlaced = Object.values(state.grid).includes(name);
-  // 静态演示版：最多 3 个单品（移动已有单品不算新增）
-  if (!alreadyPlaced && Object.keys(state.grid).length >= 3) {
-    $("#boardHint").textContent = "静态演示版最多 3 个单品，先移除一个再放。";
-    return;
-  }
-  // 已占用则移除旧的
+  // 九宫格天然最多 9 个单品；同一单品只能占一格，移动即重摆
   Object.keys(state.grid).forEach((p) => {
     if (state.grid[p] === name && p !== pos) delete state.grid[p];
   });
@@ -332,14 +327,9 @@ function onCellClick(pos) {
 
 /* ---------- 合成 / 分解 ---------- */
 async function compose() {
-  const entries = Object.entries(state.grid);
-  const items = entries.map(([pos, name]) => ({ name, position: pos }));
-  if (items.length < 2) {
+  const distinct = [...new Set(Object.values(state.grid))];
+  if (distinct.length < 2) {
     $("#resultBody").innerHTML = warnHTML("至少放 2 个单品进九宫格再合成。");
-    return;
-  }
-  if (items.length > 3) {
-    $("#resultBody").innerHTML = warnHTML("静态演示版支持 2–3 个单品，请先移除多余的。");
     return;
   }
   const center = state.grid["2,2"];
@@ -347,23 +337,46 @@ async function compose() {
     $("#resultBody").innerHTML = warnHTML("把「主推」单品放到正中间(2,2)再生成 —— 位置会改变配方。");
     return;
   }
-  const names = items.map((i) => i.name).sort();
-  const key = center + "::" + names.join(",");
-  let data;
+  let table;
   try {
-    const table = await loadComposeData();
-    data = table[key];
+    table = await loadComposeData();
   } catch (e) {
     $("#resultBody").innerHTML = warnHTML(e.message);
     return;
   }
-  if (!data) {
+
+  // 引擎只出 2~3 元素的配方：枚举所有「包含中心单品」的 2~3 元素子集，逐个查预计算表再聚合
+  const others = distinct.filter((n) => n !== center);
+  const subsets = [];
+  for (const o of others) subsets.push([center, o]);                 // 2 元素
+  for (let i = 0; i < others.length; i++)                            // 3 元素
+    for (let j = i + 1; j < others.length; j++)
+      subsets.push([center, others[i], others[j]]);
+
+  const cards = [];
+  const seen = new Set();
+  for (const subset of subsets) {
+    const key = center + "::" + [...subset].sort().join(",");
+    const data = table[key];
+    if (!data) continue;
+    for (const c of (data.cards || [])) {
+      const sig = (c.参与元素 || []).slice().sort().join(",") + "|" + c["这是什么"];
+      if (seen.has(sig)) continue;
+      seen.add(sig);
+      // 剔除清单按实际放入的所有单品重算（预计算只覆盖该子集内的项）
+      const part = c.参与元素 || [];
+      const excluded = distinct.filter((n) => !part.includes(n))
+        .map((n) => ({ item: n, reason: "无关" }));
+      cards.push({ ...c, 剔除清单: excluded, 位置依据: rebuildBasis(c, state.grid) });
+    }
+  }
+
+  if (!cards.length) {
     $("#resultBody").innerHTML = warnHTML("这组没有预计算结果，换一组或减一个单品。");
     return;
   }
-  // 重算位置依据，反映实际拖放坐标
-  data = { ...data, live: false, cards: (data.cards || []).map((c) => ({ ...c, 位置依据: rebuildBasis(c, state.grid) })) };
-  renderCompose(data);
+  cards.sort((a, b) => b.score - a.score);
+  renderCompose({ cards, message: cards.length < 3 ? "这组选择不多，要不要减一个物品再试？" : "", live: false });
 }
 
 async function decompose(name) {
